@@ -1,17 +1,11 @@
 ---
-title: Scaling Internal MySQL for PAS
+title: Scaling Internal MySQL
 owner: MySQL
 ---
 
-This topic describes scaling down your Pivotal Application Service (PAS) MySQL cluster and provides example sizing data from two environments that have significant load on their MySQL clusters. 
+This topic describes two procedures for managing the internal MySQL databases used by Pivotal Application Service (PAS) system components: scaling down your MySQL cluster, and migrating the cluster to a database stack that uses TLS encryption. It also provides example sizing data from two environments that have significant load on their MySQL clusters. 
 
-For additional resources about scaling Internal MySQL, see the following documentation:
-
-* _Deployments Using Internal MySQL_ section of [Scaling PAS](../opsguide/scaling-ert-components.html#internal-mysql)
-* _Scalable Components_ section of [High Availability in Cloud Foundry](https://docs.pivotal.io/pivotalcf/2-4/concepts/high-availability.html#processes)
-
-
-<p class="note"><strong>Note</strong>: The procedure does not apply to databases configured as external in the PAS tile <strong>Databases</strong> pane. </p>
+<p class="note"><strong>Note</strong>: The procedures do not apply to databases configured as external in the PAS tile <strong>Databases</strong> pane. </p>
 
 PAS components that use system databases include the Cloud Controller, Diego brain, Gorouter, and the User Authorization and Authentication (UAA) server. See [Cloud Foundry Components](../concepts/architecture/index.html).
 
@@ -108,6 +102,13 @@ Before scaling down your MySQL cluster, perform the following actions to ensure 
 1. Delete your test organization with the following cf CLI command:
 	<pre class="terminal">$ cf delete-org data-integrity-test-organization</pre>
 
+
+## <a id='migrate-percona-mysql'></a> Migrating to Internal Percona MySQL
+
+In PAS v2.2 and PAS v2.3, you could use either [MariaDB](http://www.mariadb.org) with cluster nodes communicating over plaintext, or a [Percona Server](https://www.percona.com/software/mysql-database/percona-server) that uses TLS to encrypt communication between server cluster nodes. PAS v2.4 no longer uses MariaDB, so you must migrate your internal databases to Percona and redeploy PAS v2.3 before you can upgrade to PAS v2.4.
+
+For more information on migrating PAS internal MySQL databases from the less secure MariaDB infrastructure to a TLS-encrypted Percona stack, see [Migrating to Internal Percona MySQL](./migrate-percona-mysql.html).
+
 ## <a id='sizing-examples'></a> MySQL Cluster Sizing Examples
 
 This topic describes two sizing examples for internal MySQL in PAS. 
@@ -186,3 +187,5 @@ The following table displays MySQL VM settings for this environment.
 		<td>1TB</td>
 	</tr>
 </table>
+
+
