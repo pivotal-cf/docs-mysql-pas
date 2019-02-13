@@ -77,7 +77,7 @@ To determine which set of instructions to follow, do the following:
     <a id="vms"></a>In the following example output, the MySQL instances are in the `failing` process state.
     <pre class="terminal">
     Instance                                                             Process State  AZ             IPs
-    backup-restore/c635410e-917d-46aa-b054-86d222b6d1c0                  running        us-central1-b  10.0.4.47
+    backup-prepare/c635410e-917d-46aa-b054-86d222b6d1c0                  running        us-central1-b  10.0.4.47
     bootstrap/a31af4ff-e1df-4ff1-a781-abc3c6320ed4                       -              us-central1-b  -
     broker-registrar/1a93e53d-af7c-4308-85d4-3b2b80d504e4                -              us-central1-b  10.0.4.58
     cf-mysql-broker/137d52b8-a1b0-41f3-847f-c44f51f87728                 running        us-central1-c  10.0.4.57
@@ -270,7 +270,7 @@ If the bootstrap errand is not able to automatically recover the cluster, you mi
 
 <p class="note warning"><strong>WARNING:</strong> The following procedures are prone to user error and can result in lost data if followed incorrectly. Follow the procedure in <a href="#assisted-bootstrap">Bootstrap with the BOSH Errand</a> above first, and only resort to the manual process if the errand fails to repair the cluster.</p>
 
-Do the procedures in the sections below to manually bootstrap your cluster. Fresh installs of PCF v2.2 and v2.3 use a [Percona server](https://www.percona.com/software/mysql-database/percona-server) for their internal system MySQL databases (called MySQL or `mysqld` below), while installations of PCF v2.3 that have been upgraded from PCF v2.1 still use [MariaDB](https://mariadb.org/) if their databases were never migrated to Percona. Use the commands below that are appropriate for your installation of PCF.
+Do the procedures in the sections below to manually bootstrap your cluster. Fresh installs of PCF v2.2 use a [Percona server](https://www.percona.com/software/mysql-database/percona-server) for their internal system MySQL databases (called MySQL or `mysqld` below), while installations of PCF v2.2 that were upgraded from PCF v2.1 use [MariaDB](https://mariadb.org/) if you did not migrate your databases to Percona. Use the commands below that are appropriate for your installation of PCF.
 
 ### <a id="shut-down-mariadb"></a> Shut Down MariaDB or MySQL
 
@@ -339,8 +339,7 @@ After determining the node with the highest `seqno`, do the following to bootstr
         ```
         bosh -e MY-ENV -d MY-DEP ignore mysql/0
         ```
-    1. Go to Ops Manager in a browser and log in.
-    1. Click **Review Pending Changes**, then **Apply Changes**.
+    1. Navigate to Ops Manager in a browser, log in, and click **Apply Changes**.
     1. When the deploy finishes, run the following command from the Ops Manager VM:
         ```
         bosh -e MY-ENV -d MY-DEP unignore mysql/0
