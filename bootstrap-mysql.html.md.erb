@@ -296,11 +296,11 @@ Do the following to find the node with the highest `seqno`:
     1. If a node crashed or was killed, the `seqno` in the Galera state file is recorded as `-1`. In this case, the `seqno` might be recoverable from the database. Run the following command to start up the database, log the recovered `seqno`, and then exit:
         * **For MariaDB clusters**:
             ```
-            /var/vcap/packages/mariadb/bin/mysqld --wsrep-recover
+            /var/vcap/packages/mariadb/bin/mysqld --defaults-file=/var/vcap/jobs/mysql/config/my.cnf --wsrep-recover
             ```
         * **For Percona clusters**:
             ```
-            /var/vcap/packages/pxc/bin/mysqld --wsrep-recover
+            /var/vcap/packages/pxc/bin/mysqld --defaults-file=/var/vcap/jobs/pxc-mysql/config/my.cnf --wsrep-recover 
             ```
     1. Scan the error log for the recovered `seqno`. It is the last number after the group id (`uuid`). For example:
         <pre class="terminal">
