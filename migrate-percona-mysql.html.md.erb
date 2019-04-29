@@ -28,21 +28,21 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 
 1. Run `mysql-diag` to check the state of your MySQL cluster and determine whether it is safe to migrate. For more information, see [Running mysql-diag](./mysql-diag.html).
 
-1. **Scale Down Your Cluster**: If your internal databases MySQL cluster runs three or more nodes, scale it down horizontally to a single node before you migrate. In the PAS tile > **Resource Config** > **MySQL Server** settings, set **Instances** to `1`. Click **Save**.
+1. If your internal databases MySQL cluster runs three or more nodes, scale it down horizontally to a single node before you migrate. In the PAS tile > **Resource Config** > **MySQL Server** settings, set **Instances** to `1`. Click **Save**.
 <p class='note'><strong>Note:</strong> Do not click <strong>Review Pending Changes</strong> and <strong>Apply Changes</strong> yet.</p>
 
-1. **Scale Up the Persistent Disk of the Server Node**: Migrating the database can demand up to 3 times the normal disk space on the MySQL server. To ensure that the single remaining MySQL server node currently uses at most `30%` of its persistent disk, do the following:  
+1. Migrating the database can demand up to 3 times the normal disk space on the MySQL server. To ensure that the single remaining MySQL server node currently uses at most `30%` of its persistent disk, do the following:  
 	1. Check the persistent disk usage of the MySQL Server job in the **Status** tab of the PAS tile. 
 	1. If the MySQL Server job disk usage exceeds 30%, scale it up vertically by increasing its persistent disk.
 
-1. **Change the System Databases Location**: In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select to **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
+1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select to **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
 <%= image_tag("system-db-tls.png") %>
 
-1. **Migrate the Database**: Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes** to re-deploy PAS with the new internal database. Consider the following when performing this step:
+1. Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes** to re-deploy PAS with the new internal database. Consider the following when performing this step:
 	* You do not need to run any errands for this step.
 	* Internal system databases become temporarily unavailable to PAS components during this migration step, but PAS apps continue to run. See [MySQL Migration Downtime](#mysql-downtime) for details. 
 
-1. **Scale the Cluster Back Up**: If you want to scale the database cluster back up to multiple server nodes, increase the instance count under **Resource Config** > **MySQL Server**. Then click **Save** to save the change and **Review Pending Changes** and **Apply Changes** in the Installation Dashboard to re-deploy.
+1. If you want to scale the database cluster back up to multiple server nodes, increase the instance count under **Resource Config** > **MySQL Server**. Then click **Save** to save the change and **Review Pending Changes** and **Apply Changes** in the Installation Dashboard to re-deploy.
 
 ### <a id='mysql-downtime'></a> MySQL Migration Downtime
 
