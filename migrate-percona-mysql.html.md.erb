@@ -12,6 +12,7 @@ as described in <a href="#downtime-effects">Effects of MySQL Downtime</a> and <a
 Applications using TCP routes will not be routable during the migration.
 </p>
 
+
 ## <a id='downtime-effects'></a> Effects of MySQL Downtime
 
 During internal MySQL server downtime, the Cloud Controller and other platform components that use system databases become unavailable. This prevents users from pushing apps, scaling apps, and running other cf CLI commands.
@@ -20,14 +21,19 @@ If the PAS UAA is configured to use an internal database, then the UAA also beco
 
 PAS UAA downtime caused by internal MySQL migration also temporarily prevents users from logging into any PAS apps that use the [Single Sign-On (SSO)](https://docs.pivotal.io/p-identity/index.html) service.
 
+
 ## <a id='procedure'></a> Procedure
+
+To migrate your internal MySQL databases from MariaDB to Percona, do the following:
+
+1. Run `mysql-diag` to check the state of your MySQL cluster and determine whether it is safe to migrate. For more information, see [Running mysql-diag](./mysql-diag.html).
 
 1. **Scale Down Your Cluster**: If your internal databases MySQL cluster runs three or more nodes, scale it down horizontally to a single node before you migrate. In the PAS tile > **Resource Config** > **MySQL Server** settings, set **Instances** to `1`. Click **Save**.
 <p class='note'><strong>Note:</strong> Do not click <strong>Review Pending Changes</strong> and <strong>Apply Changes</strong> yet.</p>
 
 1. **Scale Up the Persistent Disk of the Server Node**: Migrating the database can demand up to 3 times the normal disk space on the MySQL server. To ensure that the single remaining MySQL server node currently uses at most `30%` of its persistent disk, do the following:  
 	1. Check the persistent disk usage of the MySQL Server job in the **Status** tab of the PAS tile. 
-	2. If the MySQL Server job disk usage exceeds 30%, scale it up vertically by increasing its persistent disk.
+	1. If the MySQL Server job disk usage exceeds 30%, scale it up vertically by increasing its persistent disk.
 
 1. **Change the System Databases Location**: In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select to **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
 <%= image_tag("system-db-tls.png") %>
