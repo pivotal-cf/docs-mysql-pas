@@ -8,9 +8,7 @@ This topic describes the procedure for migrating Pivotal Application Service (PA
 In PAS v2.1 and earlier, internal system MySQL databases ran [MariaDB](http://www.mariadb.org) with cluster nodes communicating over plaintext. PAS v2.2 offers a second option for internal databases: a [Percona Server](https://www.percona.com/software/mysql-database/percona-server) that uses TLS to encrypt communication between server cluster nodes.
 
 <p class="note warning"><strong>WARNING:</strong> This procedure causes temporary downtime of PAS system functions,
-as described in <a href="#downtime-effects">Effects of MySQL Downtime</a> and <a href="#mysql-downtime">MySQL Migration Downtime</a>. It does not interrupt apps hosted by PAS, unless they use TCP routing.
-Applications using TCP routes will not be routable during the migration.
-</p>
+as described in <a href="#downtime-effects">Effects of MySQL Downtime</a> and <a href="#mysql-downtime">MySQL Migration Downtime</a>. It does not interrupt apps hosted by PAS, unless they use TCP routing. Applications using TCP routes will not be routable during the migration.</p>
 
 
 ## <a id='downtime-effects'></a> Effects of MySQL Downtime
@@ -36,13 +34,45 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	1. If the MySQL Server job disk usage exceeds 30%, scale it up vertically by increasing its persistent disk.
 
 1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select to **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
-<%= image_tag("system-db-tls.png") %>
+<%= image_tag("system-db-tls.png", :alt=> "At the top of the image is the text 'Choose the location of your system databases. Please consult the documentation for migrating existing installations from MariaDB to Percona.' Below this text are three options: one selected radio button labeled 'Internal Databases - MySQL - Percona XtraDB Cluster', one radio button labeled 'Internal Databases - MySQL - MariaDB Galera Cluster (deprecated - planned to be removed in PAS 2.4', and one radio button labeled 'External Database - (e.g. AWS RDS)'. At the bottom of the image is a blue, rectangular button labeled 'Save'.") %>
 
 1. Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes** to re-deploy PAS with the new internal database. Consider the following when performing this step:
 	* You do not need to run any errands for this step.
-	* Internal system databases become temporarily unavailable to PAS components during this migration step, but PAS apps continue to run. See [MySQL Migration Downtime](#mysql-downtime) for details. 
+	* Internal system databases become temporarily unavailable to PAS components during this migration step, but PAS apps continue to run. See [MySQL Migration Downtime](#mysql-downtime) for details.
+	* You can see that the change is being applied when you see this in Ops Manager's output after clicking **Apply Changes**:
+	<pre class='terminal'>
+	instance_groups:
+	 - name: database
+	   jobs:
+	   - name: pxc-mysql
+	     properties:
+	-       pxc_enabled: "<redacted>"
+	+       pxc_enabled: "<redacted>"
+	   - name: mysql
+	     properties:
+	-       cf_mysql_enabled: "<redacted>"
+	+       cf_mysql_enabled: "<redacted>"
+	</pre>
+	* You can measure the disk space used in the `/var/vcap/store/pxc-mysql` directory as the migration is running by SSHing into the database node and running the following command:
+	```
+	watch -n 5 du -sh /var/vcap/store/pxc-mysql
+	```
+	As the migration is running, disk usage increases:
+	<pre class='terminal'>
+	2.9G	pxc-mysql
+	</pre>
+	For more information on SSH, see [Accessing Apps with SSH](../../devguide/deploy-apps/ssh-apps.html)
+
+1. In the `/var/vcap/store/pxc-mysql` directory, open `galera-init.log` to see that Percona has started normally:
+```
+{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}
+```
+<p class='note'><strong>Note:</strong> The file <code>/var/vcap/store/migrated-successfully</code> is created upon successful migration. Do not delete this file.</p>
+Additionally, running `monit` shows that the `mariadb_ctrl` job has been replaced by `galera-init` and the `galera-healthcheck` job has been replaced by `galera-agent`.
 
 1. If you want to scale the database cluster back up to multiple server nodes, increase the instance count under **Resource Config** > **MySQL Server**. Then click **Save** to save the change and **Review Pending Changes** and **Apply Changes** in the Installation Dashboard to re-deploy.
+
+1. Run `mysql-diag` again to check the status of your new Percona cluster.
 
 ### <a id='mysql-downtime'></a> MySQL Migration Downtime
 
