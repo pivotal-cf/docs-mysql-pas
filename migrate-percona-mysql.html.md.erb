@@ -40,19 +40,19 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	* You do not need to run any errands for this step.
 	* Internal system databases become temporarily unavailable to PAS components during this migration step, but PAS apps continue to run. See [MySQL Migration Downtime](#mysql-downtime) for details.
 	* You can see that the change is being applied when you see this in Ops Manager's output after clicking **Apply Changes**:
-	<pre class='terminal'>
-	instance_groups:
-	 - name: database
-	   jobs:
-	   - name: pxc-mysql
-	     properties:
-	-       pxc_enabled: "PXC-CLUSTER-NAME"
-	+       pxc_enabled: "PXC-CLUSTER-NAME"
-	   - name: mysql
-	     properties:
-	-       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
-	+       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
-	</pre>
+		<pre class='terminal'>
+		instance_groups:
+		 - name: database
+		   jobs:
+		   - name: pxc-mysql
+		     properties:
+		       pxc_enabled: "PXC-CLUSTER-NAME"
+		       pxc_enabled: "PXC-CLUSTER-NAME"
+		   - name: mysql
+		     properties:
+		       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
+		       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
+		</pre>
 	* You can measure the disk space used in the `/var/vcap/store/pxc-mysql` directory as the migration is running by SSHing into the database node and running the following command:
 	```
 	watch -n 5 du -sh /var/vcap/store/pxc-mysql
