@@ -42,14 +42,14 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	* You can see that the change is being applied when you see this in Ops Manager's output after clicking **Apply Changes**:
 		<pre class='terminal'>
 		instance_groups:
-		 - name: database
-		   jobs:
-		   - name: pxc-mysql
-		     properties:
+		  name: database
+		  jobs:
+		    name: pxc-mysql
+		    properties:
 		       pxc_enabled: "PXC-CLUSTER-NAME"
 		       pxc_enabled: "PXC-CLUSTER-NAME"
-		   - name: mysql
-		     properties:
+		    name: mysql
+		    properties:
 		       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
 		       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
 		</pre>
