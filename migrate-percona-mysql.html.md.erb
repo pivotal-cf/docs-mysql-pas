@@ -46,12 +46,12 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	   jobs:
 	   - name: pxc-mysql
 	     properties:
-	-       pxc_enabled: "<redacted>"
-	+       pxc_enabled: "<redacted>"
+	-       pxc_enabled: "PXC-CLUSTER-NAME"
+	+       pxc_enabled: "PXC-CLUSTER-NAME"
 	   - name: mysql
 	     properties:
-	-       cf_mysql_enabled: "<redacted>"
-	+       cf_mysql_enabled: "<redacted>"
+	-       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
+	+       cf_mysql_enabled: "CF-MYSQL-CLUSTER-NAME"
 	</pre>
 	* You can measure the disk space used in the `/var/vcap/store/pxc-mysql` directory as the migration is running by SSHing into the database node and running the following command:
 	```
