@@ -7,8 +7,7 @@ This topic describes the procedure for migrating Pivotal Application Service (PA
 
 In PAS v2.1 and earlier, internal system MySQL databases ran [MariaDB](http://www.mariadb.org) with cluster nodes communicating over plaintext. PAS v2.2 offers a second option for internal databases: a [Percona Server](https://www.percona.com/software/mysql-database/percona-server) that uses TLS to encrypt communication between server cluster nodes.
 
-<p class="note warning"><strong>WARNING:</strong> This procedure causes temporary downtime of PAS system functions,
-as described in <a href="#downtime-effects">Effects of MySQL Downtime</a> and <a href="#mysql-downtime">MySQL Migration Downtime</a>. It does not interrupt apps hosted by PAS, unless they use TCP routing. Applications using TCP routes will not be routable during the migration.</p>
+<p class="note warning"><strong>WARNING:</strong> This procedure causes temporary downtime of PAS system functions, as described in <a href="#downtime-effects">Effects of MySQL Downtime</a> and <a href="#mysql-downtime">MySQL Migration Downtime</a>. It does not interrupt apps hosted by PAS, unless they use TCP routing. Applications using TCP routes will not be routable during the migration.</p>
 
 
 ## <a id='downtime-effects'></a> Effects of MySQL Downtime
@@ -93,3 +92,11 @@ To perform a manual backup, run the command:
 `time /var/vcap/packages/mariadb/bin/mysqldump --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf --all-databases > /dev/null`
 
 BOSH runs additional processes before and after a MySQL migration, but the total time the migration takes is not much longer than the manual backup.
+
+### <a id='artifact'></a> Delete MariaDB Migration Artifact
+
+When you migrate your database from MariaDB to Percona, Percona preserves a backup of the MariaDB database as a migration artifact, so you can return to using the MariaDB database if something goes wrong during migration. Upon successful migration, the migration artifact is no longer needed and only takes up disk space.
+
+You can find the migration artifact on the persistent disk of the original migration VM in the `/var/vcap/store/mysql` directory.
+
+After you check to ensure the migration to Percona was successful and see the `/var/vcap/store/migrated-successfully` file is present, you can delete the migration artifact in `/var/vcap/store/mysql`.
