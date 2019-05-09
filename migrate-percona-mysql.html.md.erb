@@ -97,6 +97,15 @@ BOSH runs additional processes before and after a MySQL migration, but the total
 
 When you migrate your database from MariaDB to Percona, Percona preserves a backup of the MariaDB database as a migration artifact, so you can return to using the MariaDB database if something goes wrong during migration. Upon successful migration, the migration artifact is no longer needed and only takes up disk space.
 
-You can find the migration artifact on the persistent disk of the original migration VM in the `/var/vcap/store/mysql` directory.
+To delete the MariaDB migration artifact, do the following:
 
-After you check to ensure the migration to Percona was successful and see the `/var/vcap/store/migrated-successfully` file is present, you can delete the migration artifact in `/var/vcap/store/mysql`.
+1. In the `/var/vcap/store/pxc-mysql` directory, open `galera-init.log` to ensure that Percona has started normally:
+```
+{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}
+```
+You can see that the `/var/vcap/store/migrated-successfully` file is present in that directory.
+
+1. Go to the `/var/vcap/store/mysql` directory.
+
+1. Delete the migration artifact in `/var/vcap/store/mysql`.
+<p class='note'><strong>Note:</strong> Do not delete the new copy of the data in <code>/var/vcap/store/pxc-mysql</code>.</p>
