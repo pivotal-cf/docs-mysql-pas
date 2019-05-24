@@ -32,7 +32,7 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	1. Check the persistent disk usage of the MySQL Server job in the **Status** tab of the PAS tile. 
 	1. If the MySQL Server job disk usage exceeds 30%, scale it up vertically by increasing its persistent disk.
 
-1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select to **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
+1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select **Internal Databases - MySQL - Percona XtraDB Cluster**. Click **Save**.
 <%= image_tag("system-db-tls.png", :alt=> "At the top of the image is the text 'Choose the location of your system databases. Please consult the documentation for migrating existing installations from MariaDB to Percona.' Below this text are three options: one selected radio button labeled 'Internal Databases - MySQL - Percona XtraDB Cluster', one radio button labeled 'Internal Databases - MySQL - MariaDB Galera Cluster (deprecated - planned to be removed in PAS 2.4', and one radio button labeled 'External Database - (e.g. AWS RDS)'. At the bottom of the image is a blue, rectangular button labeled 'Save'.") %>
 
 1. Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes** to re-deploy PAS with the new internal database. Consider the following when performing this step:
@@ -62,7 +62,7 @@ To migrate your internal MySQL databases from MariaDB to Percona, do the followi
 	</pre>
 	For more information on SSH, see [Accessing Apps with SSH](../../devguide/deploy-apps/ssh-apps.html).
 
-1. In the `/var/vcap/store/pxc-mysql` directory, open `galera-init.log` to see that Percona has started normally:
+1. In the `/var/vcap/sys/log/pxc-mysql` directory, open `galera-init.log` to see that Percona has started normally:
 ```
 {"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}
 ```
@@ -88,7 +88,7 @@ During migration, BOSH orphans the two disks used by the scaled-down nodes. This
 
 To estimate how long a database migration takes, perform a manual backup without saving the backup file.
 
-To perform a manual backup, run the command:
+To perform a manual backup, run the following command:
 `time /var/vcap/packages/mariadb/bin/mysqldump --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf --all-databases > /dev/null`
 
 BOSH runs additional processes before and after a MySQL migration, but the total time the migration takes is not much longer than the manual backup.
@@ -99,13 +99,29 @@ When you migrate your database from MariaDB to Percona, Percona preserves a back
 
 To delete the MariaDB migration artifact, do the following:
 
-1. In the `/var/vcap/store/pxc-mysql` directory, open `galera-init.log` to ensure that Percona has started normally:
+1. In the `/var/vcap/sys/log/pxc-mysql` directory, open `galera-init.log` to ensure that Percona has started normally:
 ```
 {"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}{"timestamp":"1555115911.754334211","source":"/var/vcap/packages/galera-init/bin/galera-init","message":"/var/vcap/packages/galera-init/bin/galera-init.galera-init started","log_level":1,"data":{}}
 ```
 You can see that the `/var/vcap/store/migrated-successfully` file is present in that directory.
 
-1. Go to the `/var/vcap/store/mysql` directory.
-
-1. Delete the migration artifact in `/var/vcap/store/mysql`.
+1. Delete the migration artifact in `/var/vcap/store/mysql-migration-backup`.
 <p class='note'><strong>Note:</strong> Do not delete the new copy of the data in <code>/var/vcap/store/pxc-mysql</code>.</p>
+
+### <a id='failure'></a> Recover MariaDB Data After Migration Failure
+
+If the migration to Percona fails, you can recover your MariaDB data. To recover your MariaDB data, do the following:
+
+1. Ensure that the `/var/vcap/store/mysql-migration-backup` backup artifact is on the `mysql/0` indexed node. If not, you may lose data, because the backup artifact is only stored on one node. If the backup artifact is on a different node, copy it to the `mysql/0` node.
+
+1. Scale your database cluster down to one node.
+
+1. Move `/var/vcap/store/mysql-migration-backup` back to `/var/vcap/store/mysql` by running the following command: `mv /var/vcap/store/mysql-migration-backup /var/vcap/store/mysql`
+
+1. If it exists, delete the `/var/vcap/store/migrated-successfully` file.
+
+1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select ** Internal Databases - MySQL - MariaDB Galera Cluster**. Click **Save**.
+
+1. Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes**.
+
+<p class='note'></p><strong>Note:</strong> You may still lose some of your MariaDB data if Percona has already started and served any traffic.</p>
