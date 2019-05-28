@@ -110,18 +110,23 @@ You can see that the `/var/vcap/store/migrated-successfully` file is present in 
 
 ### <a id='failure'></a> Recover MariaDB Data After Migration Failure
 
-If the migration to Percona fails, you can recover your MariaDB data. To recover your MariaDB data, do the following:
+If the migration to Percona fails, you can recover your MariaDB data.
+
+<p class='note'><strong>Note:</strong> You may still lose some of your MariaDB data if Percona has already started and served any traffic.</p>
+
+To recover your MariaDB data, do the following:
 
 1. Ensure that the `/var/vcap/store/mysql-migration-backup` backup artifact is on the `mysql/0` indexed node. If not, you may lose data, because the backup artifact is only stored on one node. If the backup artifact is on a different node, copy it to the `mysql/0` node.
 
 1. Scale your database cluster down to one node.
 
-1. Move `/var/vcap/store/mysql-migration-backup` back to `/var/vcap/store/mysql` by running the following command: `mv /var/vcap/store/mysql-migration-backup /var/vcap/store/mysql`
+1. Move `/var/vcap/store/mysql-migration-backup` back to `/var/vcap/store/mysql` by running the following command:
+   ```
+   mv /var/vcap/store/mysql-migration-backup /var/vcap/store/mysql
+   ```
 
 1. If it exists, delete the `/var/vcap/store/migrated-successfully` file.
 
 1. In the PAS tile > **Databases** pane, under **Choose the location of your system databases**, select **Internal Databases - MySQL - MariaDB Galera Cluster**. Click **Save**.
 
 1. Return to the **Installation Dashboard**, click **Review Pending Changes**, and click **Apply Changes**.
-
-<p class='note'><strong>Note:</strong> You may still lose some of your MariaDB data if Percona has already started and served any traffic.</p>
