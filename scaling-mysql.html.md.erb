@@ -5,86 +5,93 @@ owner: MySQL
 
 This topic describes scaling down your Pivotal Application Service (PAS) MySQL cluster and provides example sizing data from two environments that have significant load on their MySQL clusters. 
 
-For additional resources about scaling Internal MySQL, see the following documentation:
+For additional resources about scaling Internal MySQL, see the [Deployments Using Internal MySQL](../opsguide/scaling-ert-components.html#internal-mysql) section of the _Scaling PAS_ topic and the [Scalable Components](../concepts/high-availability.html#processes) section of the _High Availability in PAS_ topic.
 
-* _Deployments Using Internal MySQL_ section of [Scaling PAS](../opsguide/scaling-ert-components.html#internal-mysql)
-* _Scalable Components_ section of [High Availability in Cloud Foundry](https://docs.pivotal.io/pivotalcf/2-4/concepts/high-availability.html#processes)
+<p class="note"><strong>Note:</strong> The procedure does not apply to databases configured as external in the <strong>Databases</strong> pane of the PAS tile.</p>
 
-
-<p class="note"><strong>Note</strong>: The procedure does not apply to databases configured as external in the PAS tile <strong>Databases</strong> pane. </p>
-
-PAS components that use system databases include the Cloud Controller, Diego brain, Gorouter, and the User Authorization and Authentication (UAA) server. See [Cloud Foundry Components](../concepts/architecture/index.html).
+PAS components that use system databases include the Cloud Controller, Diego Brain, Gorouter, and User Authorization and Authentication (UAA) server. For more information, see [PAS Components](../concepts/architecture/index.html).
 
 
 ## <a id='scale-down'></a> Scale Down Your MySQL Cluster
 
-This procedure explains how to safely scale your MySQL cluster down to a single node. If you are already running the MySQL cluster with a single node, you do not need to perform these steps.
+This procedure explains how to safely scale your MySQL cluster down to a single node. If you are already running the MySQL cluster with a single node, you do not need to do this procedure.
 
 By default, internal MySQL deploys as a single node. To take advantage of the high availability features of MySQL, you may have scaled the configuration up to three or more server nodes.
 
 ### <a id="check-health"></a> Check the Health of Your Cluster
 
-Before scaling down your MySQL cluster, perform the following actions to ensure the cluster is healthy.
+Before scaling down your MySQL cluster, you must ensure the cluster is healthy.
 
-1. Use the Cloud Foundry Command Line Interface (cf CLI) to target the API endpoint of your Pivotal Cloud Foundry (PCF) deployment:
-	<pre class="terminal">
-	$ cf api api.YOUR-SYSTEM-DOMAIN
-	Setting api endpoint to api.YOUR-SYSTEM-DOMAIN...
-	OK
+To check the health of your cluster:
 
-	API endpoint:   http<span>s:</span>//api.YOUR-SYSTEM-DOMAIN... (API version: 2.54.0)
-	Not logged in. Use 'cf login' to log in.
-	</pre>
+1. Use the Cloud Foundry Command Line Interface (cf CLI) to target the API endpoint of your <%= vars.product_name_full %> (<%= vars.product_name %>) deployment. Run:
+	
+	```
+	cf api api.YOUR-SYSTEM-DOMAIN
+	```
+	Where `YOUR-SYSTEM-DOMAIN` is the system domain defined in the **Domains** pane of the PAS tile.
 
-1. Log in with your User Account and Authentication (UAA) Administrator user credentials. Obtain these credentials by clicking the **Credentials** tab of the Pivotal Application Service (PAS) tile, locating the **Admin Credentials** entry in the **UAA** section, and clicking **Link to Credential**.
-	<pre class="terminal">
-	$ cf login -u admin
-	API endpoint: http<span>s:</span>//api.YOUR-SYSTEM-DOMAIN
+1. To obtain your UAA admin user credentials:
+	1. Click the **Credentials** tab of the PAS tile.
+	1. Locate the **Admin Credentials** entry in the **UAA** section.
+	1. Click **Link to Credential**.
 
-	Password>
-	Authenticating...
-	OK
-	</pre>
+1. Log in with the UAA admin credentials you obtained in the previous step by running:
+	
+	```
+	cf login -u admin
+	```
 
-1. Create a test organization to verify the database across all nodes:
-	<pre class="terminal">
-	$ cf create-org data-integrity-test-organization
-	Creating org data-integrity-test-organization as admin...
-	OK
+1. Create a test organization to verify the database across all nodes by running:
+	
+	```
+	cf create-org data-integrity-test-organization
+	```
 
-	Assigning role OrgManager to user admin in org data-integrity-test-organization ...
-	OK
+1. To obtain the IP addresses of your MySQL server:
+	1. From the Ops Manager **Installation Dashboard**, click the **PAS** tile.
+	1. Click the **Status** tab.
+	1. Record the IP addresses for all instances of the **MySQL Server** job.
 
-	TIP: Use 'cf target -o data-integrity-test-organization' to target new org
-	</pre>
+1. To retrieve Cloud Controller database credentials from CredHub using the Ops Manager API:
+	1. Follow the procedures in [Using the Ops Manager API](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/ops-man-api.html) to authenticate and access the Ops Manager API.
+	1. Retrieve a list of deployed products by running:
 
-1. Obtain the IP addresses of your MySQL server by performing the following steps:
-  1. From the PCF **Installation Dashboard**, click the **Pivotal Application Service** tile.
-  1. Click the **Status** tab.
-  1. Record the IP addresses for all instances of the **MySQL Server** job.
-
-1. Retrieve Cloud Controller database credentials from CredHub using the Ops Manager API:
-	1. Perform the procedures in the [Using the Ops Manager API](../customizing/ops-man-api.html) topic to authenticate and access the Ops Manager API.
-	1. Use the `GET /api/v0/deployed/products` endpoint to retrieve a list of deployed products, replacing `UAA-ACCESS-TOKEN` with the access token recorded in the previous step:
-	  <pre class="terminal">$ curl "http<span>s:</span>//OPS-MAN-FQDN/api/v0/deployed/products" \
+	  	```
+	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products" \
 	    -X GET \
-	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"</pre>
+	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
+	    ```
+	    Where:
+	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your Ops Manager deployment.
+	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
-	1. Run the following `curl` command, replacing `PRODUCT-GUID` with the value of `guid` from the previous step:
-	  <pre class="terminal">$ curl "http<span>s:</span>//OPS-MAN-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
+	1. Run:
+	  	
+	  	```
+	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
 	    -X GET \
-	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"</pre>
+	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
+	    ```
+	    Where:
+	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your Ops Manager deployment.
+	    * `PRODUCT-GUID` is the value of `guid` you recorded in the previous step.
+	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.	    
 	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
-1. SSH into the Ops Manager VM. Because the procedures vary by IaaS, review the [SSH into Ops Manager](../customizing/trouble-advanced.html#ssh) section of the Advanced Troubleshooting with the BOSH CLI topic for specific instructions.
+1. SSH into the Ops Manager VM. Because the procedures vary by IaaS, see the [SSH into Ops Manager](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
-1. For each of the MySQL server IP addresses recorded above, perform the following steps from the Ops Manager VM:
-	1. Query the new organization with the following command, replacing `YOUR-IP` with the IP address of the MySQL server and `YOUR-IDENTITY` with the `identity` value of the CCDB credentials obtained above:
-		<pre class="terminal">
-		$ mysql -h YOUR-IP -u YOUR-IDENTITY -D ccdb -p -e "select created_at, name from organizations where name = 'data-integrity-test-organization'"
-		</pre>
-	1. When prompted, provide the `password` value of the CCDB credentials obtained above.
-	1. Examine the output of the `mysql` command and verify the `created_at` date is recent.
+1. For each of the MySQL server IP addresses recorded above:
+	1. Query the new organization by running:
+
+		```
+		mysql -h YOUR-IP -u YOUR-IDENTITY -D ccdb -p -e "select created_at, name from organizations where name = 'data-integrity-test-organization'"
+		```
+		Where:
+		* `YOUR-IP` is the IP address of the MySQL server.
+		* `YOUR-IDENTITY` is the `identity` value of the CCDB credentials you obtained above.
+	1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
+	1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
 		<pre class="terminal">
 		+---------------------+----------------------------------+
 		| created_at          | name                             |
@@ -97,16 +104,20 @@ Before scaling down your MySQL cluster, perform the following actions to ensure 
 
 ### <a id="scale-down"></a> Set Server Instance Count to 1
 
-1. From the PCF **Installation Dashboard**, click the **Pivotal Application Service** tile.
+To scale your server instance count to 1:
 
-1. Select **Resource Config**.
+1. Select **Resource Config** in the PAS tile.
 
 1. Use the dropdown to change the **Instances** count for **MySQL Server** to `1`.
 
 1. Click **Save**, then **Review Pending Changes** and **Apply Changes** to apply the changes.
 
-1. Delete your test organization with the following cf CLI command:
-	<pre class="terminal">$ cf delete-org data-integrity-test-organization</pre>
+1. Delete your test organization by running:
+	
+	```
+	cf delete-org data-integrity-test-organization
+	```
+
 
 ## <a id='sizing-examples'></a> MySQL Cluster Sizing Examples
 
@@ -118,7 +129,7 @@ Use this data as guidance to ensure your MySQL Clusters are scaled to handle the
 
 The information in this section comes from the Pivotal-managed Cloud Foundry deployment, Pivotal Web Services (PWS). 
 
-<p class="note"><strong>Note</strong>: This deployment differs from most PCF deployments in that the MySQL database is used for Diego, but not the Cloud Controller. This  means that while there are a large number of queries per second, most of them are reading data, and the number of writes is not realistically reflected.</p>
+<p class="note"><strong>Note:</strong> This deployment differs from most <%= vars.product_name %> deployments in that the MySQL database is used for Diego, but not the Cloud Controller. This  means that while there are a large number of queries per second, most of them are reading data, and the number of writes is not realistically reflected.</p>
 
 * **IAAS**: AWS
 * **App Instances**: ~23,000
@@ -128,30 +139,14 @@ The information in this section comes from the Pivotal-managed Cloud Foundry dep
 
 #### <a id="pws-sizing"></a> VM Sizing
 
-The following table displays MySQL VM settings for this environment. 
+The following table displays MySQL VM settings for this environment:
 
-<table>
-	<tr>
-		<th>Setting</th>
-		<th>Value</th>
-	</tr>
-	<tr>
-		<td>VM  Type</td>
-		<td>c4.2xlarge</td>
-	</tr>
-	<tr>
-		<td>Storage Volume Type</td>
-		<td>io1</td>
-	</tr>	
-	<tr>
-		<td>Storage Volume Size</td>
-		<td>98GB</td>
-	</tr>
-	<tr>
-		<td>Storage Volume IOPS</td>
-		<td>2000</td>
-	</tr>	
-</table>
+| Setting | Value |
+| ------- | ----- |
+| VM Type | c4.2xlarge |
+| Storage Volume Type | io1 |
+| Storage Volume Size | 98&nbsp;GB |
+| Storage Volume IOPS | 2000 |
 
 ### <a id="diego"></a> Example 2: Cloud Foundry Diego Test Environment
 
@@ -166,23 +161,10 @@ The information in this section comes from an environment used by the Diego to t
 
 #### <a id="diego-sizing"></a> VM Sizing
 
-The following table displays MySQL VM settings for this environment.
+The following table displays MySQL VM settings for this environment:
 
-<table>
-	<tr>
-		<th>Setting</th>
-		<th>Value</th>
-	</tr>
-	<tr>
-		<td>VM  Type</td>
-		<td>n1-standard-16</td>
-	</tr>	
-	<tr>
-		<td>Storage Volume Type</td>
-		<td>pd-ssd</td>
-	</tr>	
-	<tr>
-		<td>Storage Volume Size</td>
-		<td>1TB</td>
-	</tr>
-</table>
+| Setting | Value |
+| ------- | ----- |
+| VM Type | n1-standard-16 |
+| Storage Volume Type | pd-ssd |
+| Storage Volume Size | 1&nbsp;TB |
