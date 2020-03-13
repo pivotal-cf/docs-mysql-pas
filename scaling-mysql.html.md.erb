@@ -1,15 +1,15 @@
 ---
-title: Scaling Internal MySQL for PAS
+title: Scaling Internal MySQL for TAS for VMs
 owner: MySQL
 ---
 
-This topic describes scaling down your Pivotal Application Service (PAS) MySQL cluster and provides example sizing data from two environments that have significant load on their MySQL clusters.
+This topic describes scaling down your <%= vars.app_runtime_full %> (<%= vars.app_runtime_abbr %>) MySQL cluster and provides example sizing data from two environments that have significant load on their MySQL clusters.
 
-For additional resources about scaling Internal MySQL, see the [Deployments Using Internal MySQL](../opsguide/scaling-ert-components.html#internal-mysql) section of the _Scaling PAS_ topic and the [Scalable Components](../concepts/high-availability.html#processes) section of the _High Availability in PAS_ topic.
+For additional resources about scaling Internal MySQL, see the [Deployments Using Internal MySQL](../opsguide/scaling-ert-components.html#internal-mysql) section of the _Scaling <%= vars.app_runtime_abbr %>_ topic and the [Scalable Components](../concepts/high-availability.html#processes) section of the _High Availability in <%= vars.app_runtime_abbr %>_ topic.
 
-<p class="note"><strong>Note:</strong> The procedure does not apply to databases configured as external in the <strong>Databases</strong> pane of the PAS tile.</p>
+<p class="note"><strong>Note:</strong> The procedure does not apply to databases configured as external in the <strong>Databases</strong> pane of the <%= vars.app_runtime_abbr %> tile.</p>
 
-PAS components that use system databases include the Cloud Controller, Diego Brain, Gorouter, and User Authorization and Authentication (UAA) server. For more information, see [PAS Components](../concepts/architecture/index.html).
+<%= vars.app_runtime_abbr %> components that use system databases include the Cloud Controller, Diego Brain, Gorouter, and User Authorization and Authentication (UAA) server. For more information, see [<%= vars.app_runtime_abbr %> Components](../concepts/architecture/index.html).
 
 
 ## <a id='scale-down'></a> Scale Down Your MySQL Cluster
@@ -25,36 +25,36 @@ Before scaling down your MySQL cluster, you must ensure the cluster is healthy.
 To check the health of your cluster:
 
 1. Use the Cloud Foundry Command Line Interface (cf CLI) to target the API endpoint of your <%= vars.platform_name %> deployment. Run:
-	
+
 	```
 	cf api api.YOUR-SYSTEM-DOMAIN
 	```
-	Where `YOUR-SYSTEM-DOMAIN` is the system domain defined in the **Domains** pane of the PAS tile.
+	Where `YOUR-SYSTEM-DOMAIN` is the system domain defined in the **Domains** pane of the <%= vars.app_runtime_abbr %> tile.
 
 1. To obtain your UAA admin user credentials:
-	1. Click the **Credentials** tab of the PAS tile.
+	1. Click the **Credentials** tab of the <%= vars.app_runtime_abbr %> tile.
 	1. Locate the **Admin Credentials** entry in the **UAA** section.
 	1. Click **Link to Credential**.
 
 1. Log in with the UAA admin credentials you obtained in the previous step by running:
-	
+
 	```
 	cf login -u admin
 	```
 
 1. Create a test organization to verify the database across all nodes by running:
-	
+
 	```
 	cf create-org data-integrity-test-organization
 	```
 
 1. To obtain the IP addresses of your MySQL server:
-	1. From the Ops Manager **Installation Dashboard**, click the **PAS** tile.
+	1. From the <%= vars.ops_manager %> Installation Dashboard, click the <%= vars.app_runtime_abbr %> tile.
 	1. Click the **Status** tab.
 	1. Record the IP addresses for all instances of the **MySQL Server** job.
 
-1. To retrieve Cloud Controller database credentials from CredHub using the Ops Manager API:
-	1. Follow the procedures in [Using the Ops Manager API](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/ops-man-api.html) to authenticate and access the Ops Manager API.
+1. To retrieve Cloud Controller database credentials from CredHub using the <%= vars.ops_manager %> API:
+	1. Follow the procedures in [Using the <%= vars.ops_manager %> API](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/ops-man-api.html) to authenticate and access the <%= vars.ops_manager %> API.
 	1. Retrieve a list of deployed products by running:
 
 	  	```
@@ -63,23 +63,23 @@ To check the health of your cluster:
 	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
 	    ```
 	    Where:
-	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your Ops Manager deployment.
+	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.
 	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
 	1. Run:
-	  	
+
 	  	```
 	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
 	    -X GET \
 	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
 	    ```
 	    Where:
-	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your Ops Manager deployment.
+	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.
 	    * `PRODUCT-GUID` is the value of `guid` you recorded in the previous step.
-	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.	    
+	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
-1. SSH into the Ops Manager VM. Because the procedures vary by IaaS, see the [SSH into Ops Manager](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
+1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
 1. For each of the MySQL server IP addresses recorded above:
 	1. Query the new organization by running:
@@ -106,14 +106,14 @@ To check the health of your cluster:
 
 To scale your server instance count to 1:
 
-1. Select **Resource Config** in the PAS tile.
+1. Select **Resource Config** in the <%= vars.app_runtime_abbr %> tile.
 
 1. Use the dropdown to change the **Instances** count for **MySQL Server** to `1`.
 
 1. Click **Save**, then **Review Pending Changes** and **Apply Changes** to apply the changes.
 
 1. Delete your test organization by running:
-	
+
 	```
 	cf delete-org data-integrity-test-organization
 	```
@@ -121,7 +121,7 @@ To scale your server instance count to 1:
 
 ## <a id='sizing-examples'></a> MySQL Cluster Sizing Examples
 
-This topic describes two sizing examples for internal MySQL in PAS.
+This topic describes two sizing examples for internal MySQL in <%= vars.app_runtime_abbr %>.
 
 Use this data as guidance to ensure your MySQL Clusters are scaled to handle the number of app instances running on your deployment.
 
