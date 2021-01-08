@@ -1,5 +1,5 @@
 ---
-title: Scaling Internal MySQL for PAS
+title: Scaling Internal MySQL
 owner: MySQL
 ---
 
@@ -25,7 +25,7 @@ Before scaling down your MySQL cluster, you must ensure the cluster is healthy.
 To check the health of your cluster:
 
 1. Use the Cloud Foundry Command Line Interface (cf CLI) to target the API endpoint of your <%= vars.platform_name %> deployment. Run:
-	
+
 	```
 	cf api api.YOUR-SYSTEM-DOMAIN
 	```
@@ -37,13 +37,13 @@ To check the health of your cluster:
 	1. Click **Link to Credential**.
 
 1. Log in with the UAA admin credentials you obtained in the previous step by running:
-	
+
 	```
 	cf login -u admin
 	```
 
 1. Create a test organization to verify the database across all nodes by running:
-	
+
 	```
 	cf create-org data-integrity-test-organization
 	```
@@ -67,7 +67,7 @@ To check the health of your cluster:
 	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
 	1. Run:
-	  	
+
 	  	```
 	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
 	    -X GET \
@@ -76,7 +76,7 @@ To check the health of your cluster:
 	    Where:
 	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your Ops Manager deployment.
 	    * `PRODUCT-GUID` is the value of `guid` you recorded in the previous step.
-	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.	    
+	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
 1. SSH into the Ops Manager VM. Because the procedures vary by IaaS, see the [SSH into Ops Manager](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub('.', '-') %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
@@ -113,7 +113,7 @@ To scale your server instance count to 1:
 1. Click **Save**, then **Review Pending Changes** and **Apply Changes** to apply the changes.
 
 1. Delete your test organization by running:
-	
+
 	```
 	cf delete-org data-integrity-test-organization
 	```
