@@ -119,36 +119,13 @@ To scale your server instance count to 1:
 	```
 
 
-## <a id='sizing-examples'></a> MySQL Cluster Sizing Examples
+## <a id='sizing-examples'></a> MySQL Cluster Sizing Example
 
-This topic describes two sizing examples for internal MySQL in PAS.
+This topic describes a sizing example for internal MySQL in <%= vars.app_runtime_abbr %>.
 
 Use this data as guidance to ensure your MySQL Clusters are scaled to handle the number of app instances running on your deployment.
 
-### <a id="pws"></a> Example 1: Pivotal Web Services Production Environment
-
-The information in this section comes from the Pivotal-managed Cloud Foundry deployment, Pivotal Web Services (PWS).
-
-<p class="note"><strong>Note:</strong> This deployment differs from most <%= vars.platform_name %> deployments in that the MySQL database is used for Diego, but not the Cloud Controller. This  means that while there are a large number of queries per second, most of them are reading data, and the number of writes is not realistically reflected.</p>
-
-* **IAAS**: AWS
-* **App Instances**: ~23,000
-* **Average SQL Queries Per Minute**: ~308,000
-* **Average IOPS**: 220
-* **Storage Volume Usage**: 80%
-
-#### <a id="pws-sizing"></a> VM Sizing
-
-The following table displays MySQL VM settings for this environment:
-
-| Setting | Value |
-| ------- | ----- |
-| VM Type | c4.2xlarge |
-| Storage Volume Type | io1 |
-| Storage Volume Size | 98&nbsp;GB |
-| Storage Volume IOPS | 2000 |
-
-### <a id="diego"></a> Example 2: Cloud Foundry Diego Test Environment
+### <a id="diego"></a> Example: Cloud Foundry Diego Test Environment
 
 The information in this section comes from an environment used by the Diego to test the MySQL cluster with a high load similar to one generated large deployment.
 
