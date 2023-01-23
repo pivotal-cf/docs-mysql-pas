@@ -79,7 +79,7 @@ To check the health of your cluster:
 	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
 	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
-1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version.sub %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
+1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
 1. For each of the MySQL server IP addresses recorded above:
 	1. Query the new organization by running:
