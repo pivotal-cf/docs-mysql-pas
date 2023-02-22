@@ -54,63 +54,63 @@ To check the health of your cluster:
 	1. Record the IP addresses for all instances of the **MySQL Server** job.
 
 1. To retrieve Cloud Controller database credentials from CredHub using the <%= vars.ops_manager %> API:
-	1. Follow the procedures in [Using the <%= vars.ops_manager %> API](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/ops-man-api.html) to authenticate and access the <%= vars.ops_manager %> API.
-	1. Retrieve a list of deployed products by running:
+    1. Follow the procedures in [Using the <%= vars.ops_manager %> API](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/ops-man-api.html) to authenticate and access the <%= vars.ops_manager %> API.
+    1. Retrieve a list of deployed products by running:
 
-	  	```
-	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products" \
-	    -X GET \
-	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
-	    ```
+        ```
+        curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products" \
+        -X GET \
+        -H "Authorization: Bearer UAA-ACCESS-TOKEN"
+        ```
 
-	    Where:
-      <ul>
-        <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
-        <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
-      </ul>
+        Where:
+        <ul>
+          <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
+          <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
+        </ul>
 
-	1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
-	1. Run:
+    1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
+    1. Run:
 
-	  	```
-	  	curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
-	    -X GET \
-	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
-	    ```
+        ```
+        curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
+        -X GET \
+        -H "Authorization: Bearer UAA-ACCESS-TOKEN"
+        ```
 
-	    Where:
-      <ul>
-        <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
-        <li><code>PRODUCT-GUID</code> is the value of <code>guid</code> you recorded in the previous step.</li>
-        <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
-      </ul>
+        Where:
+        <ul>
+          <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
+          <li><code>PRODUCT-GUID</code> is the value of <code>guid</code> you recorded in the previous step.</li>
+          <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
+        </ul>
 
-	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
+    1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
 1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
 1. For each of the MySQL server IP addresses recorded above:
-	1. Query the new organization by running:
+    1. Query the new organization by running:
 
-		```
-		mysql -h YOUR-IP -u YOUR-IDENTITY -D ccdb -p -e "select created_at, name from organizations where name = 'data-integrity-test-organization'"
-		```
+        ```
+        mysql -h YOUR-IP -u YOUR-IDENTITY -D ccdb -p -e "select created_at, name from organizations where name = 'data-integrity-test-organization'"
+        ```
 
-		Where:
-    <ul>
-      <li><code>YOUR-IP</code> is the IP address of the MySQL server.</li>
-      <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained above.</li>
-    </ul>
+        Where:
+        <ul>
+          <li><code>YOUR-IP</code> is the IP address of the MySQL server.</li>
+          <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained above.</li>
+        </ul>
 
-	1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
-	1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
-		<pre class="terminal">
-		+---------------------+----------------------------------+
-		| created_at          | name                             |
-		+---------------------+----------------------------------+
-		| 2016-05-28 01:11:42 | data-integrity-test-organization |
-		+---------------------+----------------------------------+
-		</pre>
+    1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
+    1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
+        <pre class="terminal">
+        +---------------------+----------------------------------+
+        | created_at          | name                             |
+        +---------------------+----------------------------------+
+        | 2016-05-28 01:11:42 | data-integrity-test-organization |
+        +---------------------+----------------------------------+
+        </pre>
 
 1. If each MySQL server instance does not return the same `created_at` result, contact [Pivotal Support](https://support.pivotal.io/) before proceeding further or making any changes to your deployment. If each MySQL server instance does return the same result, then you can safely proceed to scaling down your cluster to a single node by performing the steps in the following section.
 
