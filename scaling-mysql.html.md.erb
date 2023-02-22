@@ -62,9 +62,13 @@ To check the health of your cluster:
 	    -X GET \
 	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
 	    ```
+
 	    Where:
-	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.
-	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
+      <ul>
+        <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
+        <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
+      </ul>
+
 	1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
 	1. Run:
 
@@ -73,10 +77,14 @@ To check the health of your cluster:
 	    -X GET \
 	    -H "Authorization: Bearer UAA-ACCESS-TOKEN"
 	    ```
+
 	    Where:
-	    * `OPS-MANAGER-FQDN` is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.
-	    * `PRODUCT-GUID` is the value of `guid` you recorded in the previous step.
-	    * `UAA-ACCESS-TOKEN` is the access token you recorded in the previous step.
+      <ul>
+        <li><code>OPS-MANAGER-FQDN</code> is the fully-qualified domain name (FQDN) of your <%= vars.ops_manager %> deployment.</li>
+        <li><code>PRODUCT-GUID</code> is the value of <code>guid</code> you recorded in the previous step.</li>
+        <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
+      </ul>
+
 	1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
 1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
@@ -87,9 +95,13 @@ To check the health of your cluster:
 		```
 		mysql -h YOUR-IP -u YOUR-IDENTITY -D ccdb -p -e "select created_at, name from organizations where name = 'data-integrity-test-organization'"
 		```
+
 		Where:
-		* `YOUR-IP` is the IP address of the MySQL server.
-		* `YOUR-IDENTITY` is the `identity` value of the CCDB credentials you obtained above.
+    <ul>
+      <li><code>YOUR-IP</code> is the IP address of the MySQL server.</li>
+      <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained above.</li>
+    </ul>
+
 	1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
 	1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
 		<pre class="terminal">
