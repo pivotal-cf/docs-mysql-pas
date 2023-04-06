@@ -12,7 +12,7 @@ For additional resources about scaling Internal MySQL, see the [Deployments Usin
 <%= vars.app_runtime_abbr %> components that use system databases include the Cloud Controller, Diego Brain, Gorouter, and User Authorization and Authentication (UAA) server. For more information, see [<%= vars.app_runtime_abbr %> Components](../concepts/architecture/index.html).
 
 
-## <a id='scale-down'></a> Scale Down Your MySQL Cluster
+## <a id='scale-down'></a> Scale Down your MySQL Cluster
 
 This procedure explains how to safely scale your MySQL cluster down to a single node. If you are already running the MySQL cluster with a single node, you do not need to do this procedure.
 
@@ -89,7 +89,7 @@ To check the health of your cluster:
 
 1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
-1. For each of the MySQL server IP addresses recorded above:
+1. For each of the MySQL server IP addresses that were previously recorded:
     1. Query the new organization by running:
 
         ```
@@ -120,9 +120,9 @@ To scale your server instance count to 1:
 
 1. Select **Resource Config** in the <%= vars.app_runtime_abbr %> tile.
 
-1. Use the dropdown to change the **Instances** count for **MySQL Server** to `1`.
+1. Use the drop-down text box to change the **Instances** count for **MySQL Server** to `1`.
 
-1. Click **Save**, then **Review Pending Changes** and **Apply Changes** to apply the changes.
+1. Click **Save**, then **Review Pending Changes** and **Apply Changes**.
 
 1. Delete your test organization by running:
 
