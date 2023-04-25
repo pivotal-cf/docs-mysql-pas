@@ -87,9 +87,8 @@ To check the health of your cluster:
 
     1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
-1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
-
-1. For each of the MySQL server IP addresses recorded above:
+1.  SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see [SSH into Ops Manager](https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-trouble-advanced.html) section of the Advanced Troubleshooting with the BOSH CLI topic for instructions specific to your IaaS.
+2. For each of the MySQL server IP addresses recorded above:
     1. Query the new organization by running:
 
         ```
@@ -102,8 +101,8 @@ To check the health of your cluster:
           <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained above.</li>
         </ul>
 
-    1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
-    1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
+    2. When prompted, provide the `password` value of the CCDB credentials you obtained above.
+    3. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
         <pre class="terminal">
         +---------------------+----------------------------------+
         | created_at          | name                             |
@@ -112,7 +111,7 @@ To check the health of your cluster:
         +---------------------+----------------------------------+
         </pre>
 
-1. If each MySQL server instance does not return the same `created_at` result, contact [VMware Tanzu Support](https://tanzu.vmware.com/support) before proceeding further or making any changes to your deployment. If each MySQL server instance does return the same result, then you can safely proceed to scaling down your cluster to a single node by performing the steps in the following section.
+3. If each MySQL server instance does not return the same `created_at` result, contact [VMware Tanzu Support](https://tanzu.vmware.com/support) before proceeding further or making any changes to your deployment. If each MySQL server instance does return the same result, then you can safely proceed to scaling down your cluster to a single node by performing the steps in the following section.
 
 ### <a id="scale-down"></a> Set Server Instance Count to 1
 
