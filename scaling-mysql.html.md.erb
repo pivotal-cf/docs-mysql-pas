@@ -54,7 +54,7 @@ To check the health of your cluster:
 	1. Record the IP addresses for all instances of the **MySQL Server** job.
 
 1. To retrieve Cloud Controller database credentials from CredHub using the <%= vars.ops_manager %> API:
-    1. Follow the procedures in [Using the <%= vars.ops_manager %> API](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/ops-man-api.html) to authenticate and access the <%= vars.ops_manager %> API.
+    1. Follow the procedures in [Using the <%= vars.ops_manager %> API](https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-ops-man-api.html) to authenticate and access the <%= vars.ops_manager %> API.
     1. Retrieve a list of deployed products by running:
 
         ```
@@ -87,7 +87,7 @@ To check the health of your cluster:
 
     1. Record the Cloud Controller database `username` and `password` from the response to the above request.
 
-1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.pivotal.io/platform/<%= vars.current_major_version %>/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
+1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-trouble-advanced.html#log-in-to-the-ops-manager-vm-with-ssh-2) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
 
 1. For each of the MySQL server IP addresses recorded above:
     1. Query the new organization by running:
