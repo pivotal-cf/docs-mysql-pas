@@ -1,28 +1,28 @@
 ---
-title: Scaling you internal MySQL
+title: Scaling your internal MySQL
 owner: MySQL
 ---
 
-This page describes how to scale down your <%= vars.app_runtime_first %> MySQL cluster and provides example sizing data from two environments that have significant load on their MySQL clusters.
+Here you will learn how to scale down your <%= vars.app_runtime_first %> MySQL cluster. This page also provides example sizing data from two environments that have significant load on their MySQL clusters.
 
-For additional resources about scaling Internal MySQL, see the [Deployments Using Internal MySQL](../operating/scaling-ert-components.html#internal-mysql) section of the _Scaling <%= vars.app_runtime_abbr %>_ topic and the [Scalable Components](../concepts/high-availability.html#processes) section of the _High Availability in <%= vars.app_runtime_abbr %>_ topic.
+For additional resources about scaling Internal MySQL, see the [Deployments using internal MySQL](../operating/scaling-ert-components.html#internal-mysql) section of the _Scaling <%= vars.app_runtime_abbr %>_ topic and the [Scalable components](../concepts/high-availability.html#processes) section of the _High Availability in <%= vars.app_runtime_abbr %>_ topic.
 
-<p class="note"><strong>Note:</strong> The procedure does not apply to databases configured as external in the <strong>Databases</strong> pane of the <%= vars.app_runtime_abbr %> tile.</p>
+<p class="note important"><strong>Important:</strong> The procedure does not apply to databases configured as external in the <strong>Databases</strong> pane of the <%= vars.app_runtime_abbr %> tile.</p>
 
 <%= vars.app_runtime_abbr %> components that use system databases include the Cloud Controller, Diego Brain, Gorouter, and User Authorization and Authentication (UAA) server. For more information, see [<%= vars.app_runtime_abbr %> Components](../concepts/architecture/index.html).
 
 
-## <a id='scale-down'></a> Scale Down your MySQL Cluster
+## <a id='scale-down'></a> Scale down your MySQL cluster
 
 This procedure explains how to safely scale your MySQL cluster down to a single node. If you are already running the MySQL cluster with a single node, you do not need to do this procedure.
 
 By default, internal MySQL deploys as a single node. To take advantage of the high availability features of MySQL, you may have scaled the configuration up to three or more server nodes.
 
-### <a id="check-health"></a> Check the Health of Your Cluster
+### <a id="check-health"></a> Verify the health of your cluster
 
-Before scaling down your MySQL cluster, you must ensure the cluster is healthy.
+Before scaling down your MySQL cluster, you must ensure that the cluster is healthy.
 
-To check the health of your cluster:
+To verify the health of your cluster:
 
 1. Use the Cloud Foundry Command Line Interface (cf CLI) to target the API endpoint of your <%= vars.platform_name %> deployment. Run:
 
@@ -69,8 +69,8 @@ To check the health of your cluster:
           <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
         </ul>
 
-    1. In the response to the above request, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
-    1. Run:
+    2. In the response to the request described earlier, locate the product with an `installation_name` starting with `cf-` and copy its `guid`.
+    3. Run:
 
         ```
         curl "https://OPS-MANAGER-FQDN/api/v0/deployed/products/PRODUCT-GUID/variables?name=cc-db-credentials" \
@@ -85,11 +85,11 @@ To check the health of your cluster:
           <li><code>UAA-ACCESS-TOKEN</code> is the access token you recorded in the previous step.</li>
         </ul>
 
-    1. Record the Cloud Controller database `username` and `password` from the response to the above request.
+    4. Record the Cloud Controller database `username` and `password` from the response to the request.
 
-1. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see the [SSH into <%= vars.ops_manager %>](https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-trouble-advanced.html#log-in-to-the-ops-manager-vm-with-ssh-2) section of the _Advanced Troubleshooting with the BOSH CLI_ topic for instructions specific to your IaaS.
+2. SSH into the <%= vars.ops_manager %> VM. Because the procedures vary by IaaS, see [SSH into <%= vars.ops_manager %>](https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-trouble-advanced.html#log-in-to-the-ops-manager-vm-with-ssh-2) in _Advanced troubleshooting with the BOSH CLI_ for instructions specific to your IaaS.
 
-1. For each of the MySQL server IP addresses that were previously recorded:
+3. For each of the MySQL server IP addresses that were previously recorded:
     1. Query the new organization by running:
 
         ```
@@ -99,11 +99,11 @@ To check the health of your cluster:
         Where:
         <ul>
           <li><code>YOUR-IP</code> is the IP address of the MySQL server.</li>
-          <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained above.</li>
+          <li><code>YOUR-IDENTITY</code> is the <code>identity</code> value of the CCDB credentials you obtained earlier.</li>
         </ul>
 
-    1. When prompted, provide the `password` value of the CCDB credentials you obtained above.
-    1. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
+    2. When prompted, provide the `password` value of the CCDB credentials you obtained earlier.
+    3. Examine the output of the `mysql` command and verify the `created_at` date is recent. For example:
         <pre class="terminal">
         +---------------------+----------------------------------+
         | created_at          | name                             |
@@ -112,15 +112,15 @@ To check the health of your cluster:
         +---------------------+----------------------------------+
         </pre>
 
-1. If each MySQL server instance does not return the same `created_at` result, contact [VMware Tanzu Support](https://tanzu.vmware.com/support) before proceeding further or making any changes to your deployment. If each MySQL server instance does return the same result, then you can safely proceed to scaling down your cluster to a single node by performing the steps in the following section.
+4. If each MySQL server instance does not return the same `created_at` result, contact [VMware Tanzu Support](https://tanzu.vmware.com/support) before proceeding further or making any changes to your deployment. If each MySQL server instance does return the same result, then you can safely proceed to scaling down your cluster to a single node by performing the steps in the following section.
 
-### <a id="scale-down"></a> Set Server Instance Count to 1
+### <a id="scale-down"></a> Set server instance count to 1
 
 To scale your server instance count to 1:
 
 1. Select **Resource Config** in the <%= vars.app_runtime_abbr %> tile.
 
-1. Use the drop-down text box to change the **Instances** count for **MySQL Server** to `1`.
+1. Use the drop-down menu to change the **Instances** count for **MySQL Server** to `1`.
 
 1. Click **Save**, then **Review Pending Changes** and **Apply Changes**.
 
@@ -131,13 +131,13 @@ To scale your server instance count to 1:
 	```
 
 
-## <a id='sizing-examples'></a> MySQL Cluster Sizing Example
+## <a id='sizing-examples'></a> MySQL cluster sizing example
 
 This topic describes a sizing example for internal MySQL in <%= vars.app_runtime_abbr %>.
 
-Use this data as guidance to ensure your MySQL Clusters are scaled to handle the number of app instances running on your deployment.
+Use this data as guidance to ensure that your MySQL Clusters are scaled to handle the number of app instances running on your deployment.
 
-### <a id="diego"></a> Example: Cloud Foundry Diego Test Environment
+### <a id="diego"></a> Example: Cloud Foundry Diego test environment
 
 The information in this section comes from an environment used by the Diego to test the MySQL cluster with a high load similar to one generated large deployment.
 
@@ -148,7 +148,7 @@ The information in this section comes from an environment used by the Diego to t
 	* **Reads**: 3.63
 	* **Writes**: 363.98
 
-#### <a id="diego-sizing"></a> VM Sizing
+#### <a id="diego-sizing"></a> VM sizing
 
 The following table displays MySQL VM settings for this environment:
 
