@@ -1,29 +1,7 @@
 ---
 title: Recovering from MySQL cluster downtime
 owner: RelEng
-modified_date: false
 ---
-
-<div class="quick-links">
-    <ul>
-        <li><a href="#when-to-bootstrap">When to bootstrap</a></li>
-        <li><a href="#proxy-dashboard-login">Log in to proxy dashboard</a></li>
-        <li><a href="#assisted-bootstrap">Run the bootstrap errand</a></li>
-        <ul>
-          <li><a href="#determine-failure">Discover type of cluster failure</a></li>
-          <li><a href="#cluster-disrupted">Scenario 1: Virtual machines running, cluster disrupted</a></li>
-          <li><a href="#vms-terminated">Scenario 2: Virtual machines terminated or lost</a></li>
-        </ul>
-        <li><a href="#manual-bootstrap">Bootstrap manually</a></li>
-        <ul>
-          <li><a href="#shut-down">Shut down MySQL</a></li>
-          <li><a href="#choose-node">Discover which node to bootstrap</a></li>
-          <li><a href="#set-bootstrap-node">Bootstrap the first node</a></li>
-          <li><a href="#restart-nodes">Restart remaining nodes</a></li>
-          <li><a href="#verify-nodes">Verify that the nodes have joined the cluster</a></li>
-        </ul>
-    </ul>
-</div>
 
 <!-- This partial is located at https://github.com/pivotal-cf/docs-partials/blob/master/_mysql_bootstrapping.html.md.erb
 
